@@ -2,13 +2,14 @@
   "name": "iff",
   "main": "./out/client/extension.js",
   "displayName": ".iff",
+  "icon": "icons/iff-icon.png",
   "description": "Language support for IFF",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.109.0"
   },
   "license": "MIT",
-  "publisher": "iff-lang",
+  "publisher": "FlaviusFiat",
   "repository": {
       "type": "git",
       "url": "https://github.com/Flaviuz1/IFF-extension-support"
@@ -27,11 +28,7 @@
         "extensions": [
           ".iff"
         ],
-        "configuration": "./language-configuration.json",
-        "icon": {
-          "light": "./icons/iff-icon.png",
-          "dark": "./icons/iff-icon.png"
-        }
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
