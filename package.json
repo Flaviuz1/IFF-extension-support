@@ -29,8 +29,8 @@
         ],
         "configuration": "./language-configuration.json",
         "icon": {
-          "light": "./icons/iff-icon.svg",
-          "dark": "./icons/iff-icon.svg"
+          "light": "./icons/iff-icon.png",
+          "dark": "./icons/iff-icon.png"
         }
       }
     ],
