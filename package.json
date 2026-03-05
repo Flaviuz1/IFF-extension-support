@@ -14,7 +14,11 @@
       "id": "ioanff",
       "aliases": ["IFF", "ioanff"],
       "extensions": [".iff"],
-      "configuration": "./language-configuration.json"
+      "configuration": "./language-configuration.json",
+      "icon": {
+            "light": "./icons/iff-icon.png",
+            "dark":  "./icons/iff-icon.png"
+        }
     }],
     "grammars": [{
       "language": "ioanff",

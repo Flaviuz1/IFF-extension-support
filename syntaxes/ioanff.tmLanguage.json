@@ -1,32 +1,185 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "IFF",
-	"patterns": [
-		{
-			"include": "#keywords"
-		},
-		{
-			"include": "#strings"
-		}
-	],
-	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.ioanff",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.ioanff",
-			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.ioanff",
-					"match": "\\\\."
-				}
-			]
-		}
-	},
-	"scopeName": "source.iff"
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "IFF",
+    "scopeName": "source.iff",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" },
+        { "include": "#literals" },
+        { "include": "#operators" },
+        { "include": "#punctuation" }
+    ],
+    "repository": {
+
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.iff",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.iff",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+        },
+
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.iff",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        { "include": "#interpolation" },
+                        {
+                            "name": "constant.character.escape.iff",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.iff",
+                    "begin": "'",
+                    "end": "'",
+                    "patterns": [
+                        { "include": "#interpolation" },
+                        {
+                            "name": "constant.character.escape.iff",
+                            "match": "\\\\."
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "interpolation": {
+            "name": "meta.interpolation.iff",
+            "begin": "\\$\\{",
+            "end": "\\}",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.template-expression.begin.iff" }
+            },
+            "endCaptures": {
+                "0": { "name": "punctuation.definition.template-expression.end.iff" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#strings" },
+                { "include": "#numbers" },
+                { "include": "#keywords" },
+                { "include": "#literals" },
+                { "include": "#operators" }
+            ]
+        },
+
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.float.iff",
+                    "match": "\\b[0-9]+\\.[0-9]+\\b"
+                },
+                {
+                    "name": "constant.numeric.integer.iff",
+                    "match": "\\b[0-9]+\\b"
+                }
+            ]
+        },
+
+        "keywords": {
+            "patterns": [
+                {
+                    "comment": "Control flow",
+                    "name": "keyword.control.iff",
+                    "match": "\\b(if|else|for|while|return|break|continue|match|case|import|in|print_placeholder)\\b"
+                },
+                {
+                    "comment": "Declarations",
+                    "name": "keyword.declaration.iff",
+                    "match": "\\b(var|func|class)\\b"
+                },
+                {
+                    "comment": "OOP",
+                    "name": "keyword.other.iff",
+                    "match": "\\b(self|super|is)\\b"
+                },
+                {
+                    "comment": "Logical keywords",
+                    "name": "keyword.operator.logical.iff",
+                    "match": "\\b(and|or)\\b"
+                }
+            ]
+        },
+
+        "literals": {
+            "patterns": [
+                {
+                    "name": "constant.language.boolean.iff",
+                    "match": "\\b(true|false)\\b"
+                },
+                {
+                    "name": "constant.language.null.iff",
+                    "match": "\\bnull\\b"
+                }
+            ]
+        },
+
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.comparison.iff",
+                    "match": "(==|!=|<=|>=|<|>)"
+                },
+                {
+                    "name": "keyword.operator.assignment.iff",
+                    "match": "(\\+=|-=|\\*=|/=|%=|\\^=|<<=|>>=|=)"
+                },
+                {
+                    "name": "keyword.operator.increment.iff",
+                    "match": "(\\+\\+|--)"
+                },
+                {
+                    "name": "keyword.operator.arithmetic.iff",
+                    "match": "(\\+|-|\\*|/|%|\\^)"
+                },
+                {
+                    "name": "keyword.operator.bitwise.iff",
+                    "match": "(<<|>>)"
+                },
+                {
+                    "name": "keyword.operator.logical.iff",
+                    "match": "(!)"
+                },
+                {
+                    "name": "keyword.operator.ternary.iff",
+                    "match": "(\\?|:)"
+                }
+            ]
+        },
+
+        "punctuation": {
+            "patterns": [
+                {
+                    "name": "punctuation.terminator.iff",
+                    "match": ";"
+                },
+                {
+                    "name": "punctuation.separator.iff",
+                    "match": ","
+                },
+                {
+                    "name": "punctuation.accessor.iff",
+                    "match": "\\."
+                },
+                {
+                    "name": "punctuation.brackets.iff",
+                    "match": "[\\(\\)\\[\\]\\{\\}]"
+                }
+            ]
+        }
+
+    }
 }
