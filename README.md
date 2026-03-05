@@ -1,65 +1,77 @@
-# iff README
+# IFF Language Support
 
-This is the README for your extension "iff". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Visual Studio Code extension for the **IFF programming language** — providing syntax highlighting, smart completions, and real-time diagnostics.
 
 ---
 
-## Working with Markdown
+## Features
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+### Syntax Highlighting
+Full syntax highlighting for all IFF language constructs:
+- Keywords (`if`, `else`, `while`, `for`, `func`, `class`, `var`, ...)
+- String literals with single and double quotes
+- String interpolation with `${}`
+- Numbers, booleans, and `null`
+- Line comments `//` and block comments `/* */`
+- All operators and punctuation
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### Auto Completion
+As you type, the extension suggests:
+- All language keywords
+- Built-in constants (`true`, `false`, `null`)
+- Variables, functions, and classes declared anywhere in the current file
 
-## For more information
+### Snippets
+Expand common constructs instantly:
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+| Type | Expands to |
+|------|-----------|
+| `func` | Function declaration with body |
+| `if` | If statement with condition |
+| `while` | While loop |
+| `for` | For-in loop |
+| `class` | Class declaration |
 
-**Enjoy!**
+### Diagnostics
+Real-time error and warning detection as you type:
+- **Missing semicolons** — warns on lines that should end with `;`
+- **Unclosed brackets** — detects unmatched `(`, `[`, `{`
+- **Unexpected closing brackets** — flags `)`, `]`, `}` with no matching opener
+- **Undeclared identifiers** — warns when a variable or function is used before being declared
+
+---
+
+## File Extension
+
+This extension activates on files with the `.iff` extension.
+
+---
+
+## IFF Language
+
+IFF is a custom programming language with a clean, expressive syntax. It supports:
+- Variables (`var`)
+- Functions (`func`)
+- Classes with `self` and `super`
+- Control flow: `if/else`, `while`, `for/in`, `match/case`
+- String interpolation: `"Hello ${name}"`
+- Operators: arithmetic, bitwise, comparison, logical, ternary
+- `break`, `continue`, `return`
+- Single-line (`//`) and block (`/* */`) comments
+
+---
+
+## Requirements
+
+No dependencies required. The extension works out of the box.
+
+---
+
+## Release Notes
+
+### 0.0.1
+Initial release:
+- Syntax highlighting
+- Auto completion
+- Snippet expansion
+- Real-time diagnostics

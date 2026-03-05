@@ -1,29 +1,56 @@
 {
   "name": "iff",
+  "main": "./out/client/extension.js",
   "displayName": ".iff",
   "description": "Language support for IFF",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.109.0"
   },
+  "publisher": "Fiat Flavius",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/Flaviuz1/IFF-extension-support"
+  },
   "categories": [
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "ioanff",
-      "aliases": ["IFF", "ioanff"],
-      "extensions": [".iff"],
-      "configuration": "./language-configuration.json",
-      "icon": {
-            "light": "./icons/iff-icon.png",
-            "dark":  "./icons/iff-icon.png"
+    "languages": [
+      {
+        "id": "ioanff",
+        "aliases": [
+          "IFF",
+          "ioanff"
+        ],
+        "extensions": [
+          ".iff"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/iff-icon.svg",
+          "dark": "./icons/iff-icon.svg"
         }
-    }],
-    "grammars": [{
-      "language": "ioanff",
-      "scopeName": "source.iff",
-      "path": "./syntaxes/ioanff.tmLanguage.json"
-    }]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ioanff",
+        "scopeName": "source.iff",
+        "path": "./syntaxes/ioanff.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.109.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
   }
 }
