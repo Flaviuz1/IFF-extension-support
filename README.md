@@ -69,7 +69,7 @@ No dependencies required. The extension works out of the box.
 
 ## Release Notes
 
-### 0.0.1
+### 0.0.3
 Initial release:
 - Syntax highlighting
 - Auto completion
