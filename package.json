@@ -1,0 +1,25 @@
+{
+  "name": "iff",
+  "displayName": ".iff",
+  "description": "Language support for IFF",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "ioanff",
+      "aliases": ["IFF", "ioanff"],
+      "extensions": [".iff"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "ioanff",
+      "scopeName": "source.iff",
+      "path": "./syntaxes/ioanff.tmLanguage.json"
+    }]
+  }
+}
