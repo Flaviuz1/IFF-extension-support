@@ -7,7 +7,7 @@
   "engines": {
     "vscode": "^1.109.0"
   },
-  "publisher": "Fiat Flavius",
+  "publisher": "FlaviusFiat",
   "repository": {
       "type": "git",
       "url": "https://github.com/Flaviuz1/IFF-extension-support"
