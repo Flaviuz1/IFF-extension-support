@@ -180,12 +180,17 @@ async function validateDocument(textDocument) {
         // Skip comments and strings (rough but effective)
         if (trimmed.startsWith('//'))
             continue;
+        // Skip lines that are purely strings
+        if (/^\s*["']/.test(line))
+            continue;
+        // Remove string contents before checking identifiers
+        const strippedLine = line.replace(/(["'])(?:(?!\1)[^\\]|\\.)*\1/g, '""');
         // Skip declaration lines themselves
         if (/^\s*(var|func|class)\s/.test(line))
             continue;
         identifierUsage.lastIndex = 0;
         let m;
-        while ((m = identifierUsage.exec(line)) !== null) {
+        while ((m = identifierUsage.exec(strippedLine)) !== null) {
             const name = m[1];
             if (allKnown.has(name))
                 continue;
