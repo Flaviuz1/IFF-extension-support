@@ -22,7 +22,7 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 const KEYWORDS = [
     'if', 'else', 'for', 'while', 'return', 'break', 'continue',
     'match', 'case', 'import', 'in', 'var', 'func', 'class',
-    'self', 'super', 'is', 'and', 'or', 'print_placeholder'
+    'self', 'super', 'is', 'and', 'or', 'print_placeholder', 'con'
 ];
 
 const BUILTINS = ['true', 'false', 'null'];
