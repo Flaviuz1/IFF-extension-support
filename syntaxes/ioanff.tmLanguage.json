@@ -99,7 +99,7 @@
                 {
                     "comment": "Declarations",
                     "name": "keyword.declaration.iff",
-                    "match": "\\b(var|func|class)\\b"
+                    "match": "\\b(var|con|func|class)\\b"
                 },
                 {
                     "comment": "OOP",
