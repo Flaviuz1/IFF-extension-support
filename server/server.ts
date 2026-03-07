@@ -163,15 +163,18 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
 
     // ── Undeclared variable check ──
     const declaredVars = new Set<string>();
+    const declaredCons = new Set<string>();
     const declaredFuncs = new Set<string>();
 
     // First pass: collect all declarations
     const varDecl    = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     const funcDecl   = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     const classDecl  = /\bclass\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const conDecl    = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
 
     let match;
     while ((match = varDecl.exec(text))   !== null) declaredVars.add(match[1]);
+    while ((match = conDecl.exec(text))   !== null) declaredCons.add(match[1]);
     while ((match = funcDecl.exec(text))  !== null) declaredFuncs.add(match[1]);
     while ((match = classDecl.exec(text)) !== null) declaredFuncs.add(match[1]);
 
@@ -179,7 +182,7 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
     const identifierUsage = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
     const allKnown = new Set([
         ...KEYWORDS, ...BUILTINS,
-        ...declaredVars, ...declaredFuncs
+        ...declaredVars, ...declaredFuncs , ...declaredCons
     ]);
 
     // Reset and scan line by line for better position tracking
@@ -195,7 +198,7 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
         const strippedLine = line.replace(/(["'])(?:(?!\1)[^\\]|\\.)*\1/g, '""');
 
         // Skip declaration lines themselves
-        if (/^\s*(var|func|class)\s/.test(line)) continue;
+        if (/^\s*(var|con|func|class)\s/.test(line)) continue;
 
         identifierUsage.lastIndex = 0;
         let m;
@@ -248,6 +251,13 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         items.push({ label: m[1], kind: CompletionItemKind.Variable });
     }
 
+    // Constants declared in the file
+    const conDecl = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    let n;
+    while ((n = conDecl.exec(text)) !== null) {
+        items.push({ label: n[1], kind: CompletionItemKind.Constant });
+    }
+
     // Functions declared in the file
     const funcDecl = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     while ((m = funcDecl.exec(text)) !== null) {
@@ -267,6 +277,20 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         insertText: 'func ${1:name}(${2:params}) {\n\t${3}\n}',
         insertTextFormat: 2, // snippet format
         detail: 'Function declaration'
+    });
+    items.push({
+        label: 'con',
+        kind: CompletionItemKind.Snippet,
+        insertText: 'con ${1:name} = ${2:value};',
+        insertTextFormat: 2,
+        detail: 'Constant declaration'
+    });
+    items.push({
+        label: 'var',
+        kind: CompletionItemKind.Snippet,
+        insertText: 'var ${1:name} = ${2:value};',
+        insertTextFormat: 2,
+        detail: 'Variable declaration'
     });
     items.push({
         label: 'if',
