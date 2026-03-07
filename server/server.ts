@@ -115,6 +115,10 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
                     stack.pop();
                 }
             }
+
+            const isDecl = /^\s*(var|con|func|class)\s/.test(line);
+            console.log(lineNum, isDecl, line);
+            if (isDecl) continue;
         }
 
         // ── Missing semicolon check ──
@@ -270,6 +274,8 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         items.push({ label: m[1], kind: CompletionItemKind.Class });
     }
 
+
+    
     // Snippets
     items.push({
         label: 'func',

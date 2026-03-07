@@ -112,6 +112,10 @@ async function validateDocument(textDocument) {
                     stack.pop();
                 }
             }
+            const isDecl = /^\s*(var|con|func|class)\s/.test(line);
+            console.log(lineNum, isDecl, line);
+            if (isDecl)
+                continue;
         }
         // ── Missing semicolon check ──
         // Skip blank lines, lines ending with { } ( ) , comment lines, and block starters
@@ -155,14 +159,18 @@ async function validateDocument(textDocument) {
     }
     // ── Undeclared variable check ──
     const declaredVars = new Set();
+    const declaredCons = new Set();
     const declaredFuncs = new Set();
     // First pass: collect all declarations
     const varDecl = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     const funcDecl = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     const classDecl = /\bclass\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const conDecl = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     let match;
     while ((match = varDecl.exec(text)) !== null)
         declaredVars.add(match[1]);
+    while ((match = conDecl.exec(text)) !== null)
+        declaredCons.add(match[1]);
     while ((match = funcDecl.exec(text)) !== null)
         declaredFuncs.add(match[1]);
     while ((match = classDecl.exec(text)) !== null)
@@ -171,7 +179,7 @@ async function validateDocument(textDocument) {
     const identifierUsage = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
     const allKnown = new Set([
         ...KEYWORDS, ...BUILTINS,
-        ...declaredVars, ...declaredFuncs
+        ...declaredVars, ...declaredFuncs, ...declaredCons
     ]);
     // Reset and scan line by line for better position tracking
     for (let lineNum = 0; lineNum < lines.length; lineNum++) {
@@ -186,7 +194,7 @@ async function validateDocument(textDocument) {
         // Remove string contents before checking identifiers
         const strippedLine = line.replace(/(["'])(?:(?!\1)[^\\]|\\.)*\1/g, '""');
         // Skip declaration lines themselves
-        if (/^\s*(var|func|class)\s/.test(line))
+        if (/^\s*(var|con|func|class)\s/.test(line))
             continue;
         identifierUsage.lastIndex = 0;
         let m;
@@ -231,6 +239,12 @@ connection.onCompletion((params) => {
     let m;
     while ((m = varDecl.exec(text)) !== null) {
         items.push({ label: m[1], kind: node_1.CompletionItemKind.Variable });
+    }
+    // Constants declared in the file
+    const conDecl = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    let n;
+    while ((n = conDecl.exec(text)) !== null) {
+        items.push({ label: n[1], kind: node_1.CompletionItemKind.Constant });
     }
     // Functions declared in the file
     const funcDecl = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
