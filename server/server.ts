@@ -279,20 +279,6 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         detail: 'Function declaration'
     });
     items.push({
-        label: 'con',
-        kind: CompletionItemKind.Snippet,
-        insertText: 'con ${1:name} = ${2:value};',
-        insertTextFormat: 2,
-        detail: 'Constant declaration'
-    });
-    items.push({
-        label: 'var',
-        kind: CompletionItemKind.Snippet,
-        insertText: 'var ${1:name} = ${2:value};',
-        insertTextFormat: 2,
-        detail: 'Variable declaration'
-    });
-    items.push({
         label: 'if',
         kind: CompletionItemKind.Snippet,
         insertText: 'if (${1:condition}) {\n\t${2}\n}',

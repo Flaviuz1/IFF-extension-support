@@ -8,7 +8,7 @@ const documents = new node_1.TextDocuments(vscode_languageserver_textdocument_1.
 const KEYWORDS = [
     'if', 'else', 'for', 'while', 'return', 'break', 'continue',
     'match', 'case', 'import', 'in', 'var', 'func', 'class',
-    'self', 'super', 'is', 'and', 'or', 'print_placeholder'
+    'self', 'super', 'is', 'and', 'or', 'print_placeholder', 'con'
 ];
 const BUILTINS = ['true', 'false', 'null'];
 // ─── Initialize ─────────────────────────────────────────────────────────────
