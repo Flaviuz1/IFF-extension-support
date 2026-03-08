@@ -4,7 +4,7 @@
   "displayName": ".iff",
   "icon": "icons/iff-icon.png",
   "description": "Language support for IFF",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.109.0"
   },

@@ -21,8 +21,8 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 const KEYWORDS = [
     'if', 'else', 'for', 'while', 'return', 'break', 'continue',
-    'match', 'case', 'import', 'in', 'var', 'func', 'class',
-    'self', 'super', 'is', 'and', 'or', 'print_placeholder', 'con'
+    'match', 'case', 'default', 'import', 'in', 'by', 'var', 'con',
+    'func', 'class', 'self', 'super', 'is', 'and', 'or', 'print_placeholder'
 ];
 
 const BUILTINS = ['true', 'false', 'null'];
@@ -55,24 +55,24 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
 
     // Track bracket/brace/paren balance
     const stack: { char: string, line: number, col: number }[] = [];
-    const openFor: Record<string, string> = { ')': '(', '}': '{', ']': '[' };
+    const openFor:  Record<string, string> = { ')': '(', '}': '{', ']': '[' };
     const closeFor: Record<string, string> = { '(': ')', '{': '}', '[': ']' };
 
-    let inLineComment = false;
-    let inBlockComment = false;
-    let inString = false;
-    let stringChar = '';
+    let inBlockComment  = false;
+    let inString        = false;
+    let stringChar      = '';
     let inInterpolation = false;
 
     for (let lineNum = 0; lineNum < lines.length; lineNum++) {
         const line = lines[lineNum];
-        inLineComment = false;
+        const lineStartedInBlockComment = inBlockComment;
+        let inLineComment = false;
 
         for (let col = 0; col < line.length; col++) {
-            const ch = line[col];
+            const ch   = line[col];
             const next = line[col + 1];
 
-            // Block comment handling
+            // Block comment
             if (inBlockComment) {
                 if (ch === '*' && next === '/') { inBlockComment = false; col++; }
                 continue;
@@ -85,12 +85,10 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
 
             // String handling
             if (!inString && (ch === '"' || ch === "'")) {
-                inString = true;
-                stringChar = ch;
-                continue;
+                inString = true; stringChar = ch; continue;
             }
             if (inString) {
-                if (ch === '\\') { col++; continue; } // escape
+                if (ch === '\\') { col++; continue; }
                 if (ch === '$' && next === '{') { inInterpolation = true; col++; continue; }
                 if (ch === stringChar && !inInterpolation) { inString = false; stringChar = ''; }
                 if (inInterpolation && ch === '}') { inInterpolation = false; }
@@ -115,30 +113,25 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
                     stack.pop();
                 }
             }
-
-            const isDecl = /^\s*(var|con|func|class)\s/.test(line);
-            console.log(lineNum, isDecl, line);
-            if (isDecl) continue;
         }
 
         // ── Missing semicolon check ──
-        // Skip blank lines, lines ending with { } ( ) , comment lines, and block starters
         const trimmed = line.trim();
-        if (
-            trimmed.length === 0 ||
-            trimmed.startsWith('//') ||
-            trimmed.startsWith('/*') ||
-            trimmed.startsWith('*') ||
-            trimmed.endsWith('{') ||
-            trimmed.endsWith('}') ||
-            trimmed.endsWith(',') ||
-            trimmed.endsWith('(') ||
-            trimmed.endsWith(';') ||
+        if (lineStartedInBlockComment      ||
+            inBlockComment                 ||
+            trimmed.length === 0           ||
+            trimmed.startsWith('//')       ||
+            trimmed.startsWith('/*')       ||
+            trimmed.startsWith('*')        ||
+            trimmed.endsWith('{')          ||
+            trimmed.endsWith('}')          ||
+            trimmed.endsWith(',')          ||
+            trimmed.endsWith('(')          ||
+            trimmed.endsWith(';')          ||
             trimmed.endsWith(':')
         ) continue;
 
-        // Lines that are block starters don't need semicolons
-        const isBlockStarter = /^\s*(if|else|for|while|func|class|match|case)\b/.test(line);
+        const isBlockStarter = /^\s*(if|else|for|while|func|class|match|case|default)\b/.test(line);
         if (isBlockStarter) continue;
 
         diagnostics.push({
@@ -147,7 +140,7 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
                 start: { line: lineNum, character: line.trimEnd().length - 1 },
                 end:   { line: lineNum, character: line.trimEnd().length }
             },
-            message: `Missing semicolon.`,
+            message: 'Missing semicolon.',
             source: 'IFF'
         });
     }
@@ -166,15 +159,14 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
     }
 
     // ── Undeclared variable check ──
-    const declaredVars = new Set<string>();
-    const declaredCons = new Set<string>();
+    const declaredVars  = new Set<string>();
+    const declaredCons  = new Set<string>();
     const declaredFuncs = new Set<string>();
 
-    // First pass: collect all declarations
-    const varDecl    = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    const funcDecl   = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    const classDecl  = /\bclass\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    const conDecl    = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const varDecl   = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const funcDecl  = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const classDecl = /\bclass\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const conDecl   = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
 
     let match;
     while ((match = varDecl.exec(text))   !== null) declaredVars.add(match[1]);
@@ -182,34 +174,33 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
     while ((match = funcDecl.exec(text))  !== null) declaredFuncs.add(match[1]);
     while ((match = classDecl.exec(text)) !== null) declaredFuncs.add(match[1]);
 
-    // Second pass: check usages
+    // Also collect for-loop variables: for (var i in ...)
+    const forVarDecl = /\bfor\s*\(\s*(?:var|con)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    while ((match = forVarDecl.exec(text)) !== null) declaredVars.add(match[1]);
+
     const identifierUsage = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
     const allKnown = new Set([
         ...KEYWORDS, ...BUILTINS,
-        ...declaredVars, ...declaredFuncs , ...declaredCons
+        ...declaredVars, ...declaredFuncs, ...declaredCons
     ]);
 
-    // Reset and scan line by line for better position tracking
     for (let lineNum = 0; lineNum < lines.length; lineNum++) {
-        const line = lines[lineNum];
+        const line    = lines[lineNum];
         const trimmed = line.trim();
 
-        // Skip comments and strings (rough but effective)
         if (trimmed.startsWith('//')) continue;
-        // Skip lines that are purely strings
         if (/^\s*["']/.test(line)) continue;
-        // Remove string contents before checking identifiers
-        const strippedLine = line.replace(/(["'])(?:(?!\1)[^\\]|\\.)*\1/g, '""');
-
-        // Skip declaration lines themselves
         if (/^\s*(var|con|func|class)\s/.test(line)) continue;
+
+        // Strip string literals before scanning identifiers
+        const strippedLine = line.replace(/(["'])(?:(?!\1)[^\\]|\\.)*\1/g, '""');
 
         identifierUsage.lastIndex = 0;
         let m;
         while ((m = identifierUsage.exec(strippedLine)) !== null) {
             const name = m[1];
             if (allKnown.has(name)) continue;
-            if (/^\d/.test(name)) continue; // numbers
+            if (/^\d/.test(name)) continue;
 
             diagnostics.push({
                 severity: DiagnosticSeverity.Warning,
@@ -221,8 +212,7 @@ async function validateDocument(textDocument: TextDocument): Promise<void> {
                 source: 'IFF'
             });
 
-            // Add to known so we don't spam the same warning
-            allKnown.add(name);
+            allKnown.add(name); // suppress duplicate warnings
         }
     }
 
@@ -235,7 +225,7 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
     const doc = documents.get(params.textDocument.uri);
     if (!doc) return [];
 
-    const text = doc.getText();
+    const text  = doc.getText();
     const items: CompletionItem[] = [];
 
     // Keywords
@@ -248,40 +238,26 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         items.push({ label: b, kind: CompletionItemKind.Constant });
     }
 
-    // Variables declared in the file
-    const varDecl = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    let m;
-    while ((m = varDecl.exec(text)) !== null) {
-        items.push({ label: m[1], kind: CompletionItemKind.Variable });
-    }
-
-    // Constants declared in the file
-    const conDecl = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    let n;
-    while ((n = conDecl.exec(text)) !== null) {
-        items.push({ label: n[1], kind: CompletionItemKind.Constant });
-    }
-
-    // Functions declared in the file
-    const funcDecl = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    while ((m = funcDecl.exec(text)) !== null) {
-        items.push({ label: m[1], kind: CompletionItemKind.Function });
-    }
-
-    // Classes declared in the file
+    // Declared symbols in the file
+    const varDecl   = /\bvar\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const conDecl   = /\bcon\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const funcDecl  = /\bfunc\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
     const classDecl = /\bclass\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
-    while ((m = classDecl.exec(text)) !== null) {
-        items.push({ label: m[1], kind: CompletionItemKind.Class });
-    }
+    const forVar    = /\bfor\s*\(\s*(?:var|con)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
 
+    let m;
+    while ((m = varDecl.exec(text))   !== null) items.push({ label: m[1], kind: CompletionItemKind.Variable });
+    while ((m = conDecl.exec(text))   !== null) items.push({ label: m[1], kind: CompletionItemKind.Constant });
+    while ((m = funcDecl.exec(text))  !== null) items.push({ label: m[1], kind: CompletionItemKind.Function });
+    while ((m = classDecl.exec(text)) !== null) items.push({ label: m[1], kind: CompletionItemKind.Class    });
+    while ((m = forVar.exec(text))    !== null) items.push({ label: m[1], kind: CompletionItemKind.Variable });
 
-    
     // Snippets
     items.push({
         label: 'func',
         kind: CompletionItemKind.Snippet,
         insertText: 'func ${1:name}(${2:params}) {\n\t${3}\n}',
-        insertTextFormat: 2, // snippet format
+        insertTextFormat: 2,
         detail: 'Function declaration'
     });
     items.push({
@@ -290,6 +266,13 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
         insertText: 'if (${1:condition}) {\n\t${2}\n}',
         insertTextFormat: 2,
         detail: 'If statement'
+    });
+    items.push({
+        label: 'if-else',
+        kind: CompletionItemKind.Snippet,
+        insertText: 'if (${1:condition}) {\n\t${2}\n} else {\n\t${3}\n}',
+        insertTextFormat: 2,
+        detail: 'If-else statement'
     });
     items.push({
         label: 'while',
@@ -301,9 +284,16 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
     items.push({
         label: 'for',
         kind: CompletionItemKind.Snippet,
-        insertText: 'for (${1:i} in ${2:iterable}) {\n\t${3}\n}',
+        insertText: 'for (var ${1:i} in ${2:0}->${3:10}) {\n\t${4}\n}',
         insertTextFormat: 2,
-        detail: 'For loop'
+        detail: 'For range loop'
+    });
+    items.push({
+        label: 'match',
+        kind: CompletionItemKind.Snippet,
+        insertText: 'match (${1:value}) {\n\tcase ${2:val}: ${3}\n\tdefault: ${4}\n}',
+        insertTextFormat: 2,
+        detail: 'Match statement'
     });
     items.push({
         label: 'class',
@@ -316,9 +306,7 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
     return items;
 });
 
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    return item;
-});
+connection.onCompletionResolve((item: CompletionItem): CompletionItem => item);
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 
